@@ -19,5 +19,12 @@
       "text": "Puglia (Ale-Giuli)",
       "type": "holiday"
     }
+  ],
+  "2026-08-02": [
+    {
+      "who": "v",
+      "text": "Puglia (Ale-Giuli)",
+      "type": "event"
+    }
   ]
 }
