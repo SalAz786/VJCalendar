@@ -161,12 +161,22 @@
       "who": "v",
       "text": "China",
       "type": "event"
+    },
+    {
+      "who": "j",
+      "text": "UK Trip",
+      "type": "event"
     }
   ],
   "2026-07-19": [
     {
       "who": "v",
       "text": "China",
+      "type": "event"
+    },
+    {
+      "who": "j",
+      "text": "UK Trip",
       "type": "event"
     }
   ],
@@ -188,13 +198,6 @@
     {
       "who": "v",
       "text": "China",
-      "type": "event"
-    }
-  ],
-  "2026-07-05": [
-    {
-      "who": "v",
-      "text": "Kari present",
       "type": "event"
     }
   ]
