@@ -5,5 +5,12 @@
       "text": "TEST",
       "type": "event"
     }
+  ],
+  "2026-07-31": [
+    {
+      "who": "v",
+      "text": "Puglia (Ale-Giuli)",
+      "type": "event"
+    }
   ]
 }
