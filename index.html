@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>V & J — 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --vc: #E8476A; --vl: #fce8ed;
+  --jc: #4B7BF5; --jl: #e8effe;
+  --bc: #A855F7; --bl: #f3e8ff;
+  --bg: #F7F4EF; --white: #fff;
+  --text: #1a1a1a; --muted: #999;
+  --border: #e0dcd6; --r: 18px;
+}
+
+body { background: var(--bg); font-family: 'Space Grotesk', sans-serif; color: var(--text); min-height: 100vh; }
+
+/* HEADER */
+header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 28px; background: var(--white);
+  border-bottom: 2px solid var(--border);
+  position: sticky; top: 0; z-index: 100; gap: 12px; flex-wrap: wrap;
+}
+.logo { font-family: 'Fraunces', serif; font-weight: 900; font-size: 30px; letter-spacing: -1px; line-height: 1; }
+.logo .v { color: var(--vc); }
+.logo .amp { color: var(--muted); font-size: 20px; font-weight: 700; }
+.logo .j { color: var(--jc); }
+.logo .yr { font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 500; color: var(--muted); margin-left: 8px; vertical-align: middle; }
+
+.hdr-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.legend { display: flex; gap: 6px; }
+.leg { display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 40px; border: 2px solid; }
+.leg-v { background: var(--vl); border-color: var(--vc); color: var(--vc); }
+.leg-j { background: var(--jl); border-color: var(--jc); color: var(--jc); }
+.leg-b { background: var(--bl); border-color: var(--bc); color: var(--bc); }
+.dot { width: 8px; height: 8px; border-radius: 50%; }
+.dv { background: var(--vc); } .dj { background: var(--jc); } .db { background: var(--bc); }
+
+.vtoggle { display: flex; border: 2px solid var(--border); border-radius: 40px; overflow: hidden; }
+.vbtn { padding: 6px 14px; border: none; background: none; font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; color: var(--muted); transition: all .15s; white-space: nowrap; }
+.vbtn.on { background: var(--text); color: #fff; }
+
+/* SYNC BAR */
+.sync-bar {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 14px; border-radius: 40px;
+  border: 2px solid var(--border); background: var(--white);
+  font-size: 11px; font-weight: 600; color: var(--muted);
+  cursor: default;
+}
+.sync-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #ccc; flex-shrink: 0; transition: background .3s;
+}
+.sd-idle { background: #4ade80; }
+.sd-loading { background: #facc15; animation: pulse 1s infinite; }
+.sd-saving { background: #60a5fa; animation: pulse 1s infinite; }
+.sd-error { background: #f87171; }
+.sd-uncfg { background: #d1d5db; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+.sync-bar .sync-refresh {
+  background: none; border: none; cursor: pointer;
+  font-size: 13px; color: var(--muted); padding: 0; line-height: 1;
+  transition: transform .3s;
+}
+.sync-bar .sync-refresh:hover { transform: rotate(180deg); }
+
+.icon-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; border-radius: 50%;
+  border: 2px solid var(--border); background: var(--white);
+  font-size: 16px; cursor: pointer; transition: all .15s;
+}
+.icon-btn:hover { background: var(--bg); border-color: var(--text); }
+
+/* SETUP BANNER */
+.setup-banner {
+  display: none; background: #fffbeb; border-bottom: 2px solid #fbbf24;
+  padding: 12px 28px; display: flex; align-items: center; gap: 12px;
+  font-size: 13px; font-weight: 600; color: #92400e;
+}
+.setup-banner.hidden { display: none !important; }
+.setup-banner-btn {
+  margin-left: auto; padding: 6px 16px; background: #f59e0b;
+  border: none; border-radius: 20px; color: #fff;
+  font-family: 'Space Grotesk', sans-serif; font-weight: 700;
+  font-size: 12px; cursor: pointer; white-space: nowrap;
+}
+
+/* MONTH NAV */
+.mnav { display: flex; gap: 7px; padding: 12px 28px; overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid var(--border); }
+.mnav::-webkit-scrollbar { display: none; }
+.mtab { font-family: 'Fraunces', serif; font-weight: 700; font-size: 12px; padding: 6px 16px; border-radius: 40px; border: none; cursor: pointer; white-space: nowrap; transition: all .15s; background: #e8e4de; color: #777; }
+.mtab.on { transform: scale(1.06); }
+
+/* PANELS */
+.panel { display: none; padding: 0 28px 60px; }
+.panel.on { display: block; }
+
+/* DETAIL */
+.msec { display: none; }
+.msec.on { display: block; }
+.mhdr { display: flex; align-items: baseline; gap: 12px; padding-top: 10px; margin-bottom: 16px; }
+.mname { font-family: 'Fraunces', serif; font-weight: 900; font-size: 54px; line-height: 1; letter-spacing: -3px; }
+.myr { font-size: 16px; font-weight: 600; color: var(--muted); }
+
+.tog-strip { background: var(--bl); border: 2px dashed var(--bc); border-radius: 12px; padding: 11px 18px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; }
+.tog-lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--bc); }
+.tog-num { font-family: 'Fraunces', serif; font-weight: 900; font-size: 24px; color: var(--bc); }
+.tog-sub { font-size: 10px; color: var(--bc); opacity: .65; margin-top: 1px; }
+
+.cgrid { background: var(--white); border-radius: var(--r); overflow: hidden; border: 2px solid var(--border); }
+.cwk { display: grid; grid-template-columns: repeat(7,1fr); background: #f0ece6; border-bottom: 2px solid var(--border); }
+.cwkd { text-align: center; font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding: 9px 0; }
+.cdays { display: grid; grid-template-columns: repeat(7,1fr); }
+
+.cday { border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); min-height: 106px; padding: 7px; cursor: pointer; transition: background .12s; display: flex; flex-direction: column; position: relative; }
+.cday:nth-child(7n) { border-right: none; }
+.cday:hover { background: #faf8f5; }
+.cday.emp { background: #faf8f5; cursor: default; }
+.cday.today .dnum { background: var(--text); color: #fff; }
+.cday.hv { background: #fff0f3; }
+.cday.hj { background: #eef2ff; }
+.cday.hv.hj { background: linear-gradient(135deg,#fff0f3 50%,#eef2ff 50%); }
+
+.hstripe { position: absolute; top: 0; left: 0; right: 0; height: 3px; display: flex; }
+.hsv { flex: 1; background: var(--vc); }
+.hsj { flex: 1; background: var(--jc); }
+
+.dnum { font-family: 'Fraunces', serif; font-weight: 700; font-size: 14px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0; margin-bottom: 3px; }
+.devts { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+
+.pill { border-radius: 5px; padding: 2px 5px; font-size: 10px; font-weight: 600; display: flex; align-items: center; gap: 3px; }
+.pill.pv { background: var(--vl); color: var(--vc); }
+.pill.pj { background: var(--jl); color: var(--jc); }
+.pill.pb { background: var(--bl); color: var(--bc); }
+.pill.phv { background: var(--vc); color: #fff; }
+.pill.phj { background: var(--jc); color: #fff; }
+.pill .del { margin-left: auto; opacity: 0; font-size: 12px; cursor: pointer; padding: 0 1px; line-height: 1; }
+.pill:hover .del { opacity: 1; }
+.more { font-size: 9px; color: var(--muted); font-weight: 600; margin-top: 1px; }
+
+/* SUMMARY */
+.sum-title { font-family: 'Fraunces', serif; font-weight: 900; font-size: 28px; letter-spacing: -1.5px; padding-top: 16px; margin-bottom: 4px; }
+.sum-sub { font-size: 11px; color: var(--muted); font-weight: 500; margin-bottom: 12px; }
+
+.sum-leg { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; padding: 9px 14px; background: var(--white); border-radius: 10px; border: 2px solid var(--border); align-items: center; }
+.sl { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; }
+.slb { width: 18px; height: 14px; border-radius: 3px; }
+.slbv { background: var(--vc); } .slbj { background: var(--jc); }
+.slbb { background: linear-gradient(135deg,var(--vc) 50%,var(--jc) 50%); }
+.sld { width: 11px; height: 11px; border-radius: 50%; border: 2px solid var(--bc); }
+
+.sum-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.smrow { background: var(--white); border-radius: 14px; border: 2px solid var(--border); padding: 12px 14px; cursor: pointer; transition: box-shadow .15s; }
+.smrow:hover { box-shadow: 0 4px 20px rgba(0,0,0,.08); }
+
+.smtop { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; }
+.smname { font-family: 'Fraunces', serif; font-weight: 900; font-size: 20px; letter-spacing: -.5px; line-height: 1; }
+.smstats { display: flex; gap: 6px; margin-left: auto; }
+.smstat { display: flex; flex-direction: column; align-items: center; background: var(--bg); border-radius: 7px; padding: 3px 8px; }
+.smstat-n { font-family: 'Fraunces', serif; font-weight: 900; font-size: 14px; }
+.smstat-l { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+
+/* MINI GRID */
+.mgwrap { display: flex; flex-direction: column; gap: 2px; }
+.mgwk { display: grid; grid-template-columns: repeat(7,1fr); gap: 1px; margin-bottom: 1px; }
+.mgwkd { font-size: 7px; font-weight: 700; text-align: center; color: var(--muted); text-transform: uppercase; }
+.mgdays { display: grid; grid-template-columns: repeat(7,1fr); gap: 1px; }
+.md { aspect-ratio: 1; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 7px; font-weight: 600; background: #f0ece6; color: var(--muted); position: relative; overflow: hidden; }
+.md.me { background: transparent; }
+.md.mtoday { outline: 2px solid var(--text); outline-offset: -2px; }
+.md.mhv { background: var(--vc); color: #fff; }
+.md.mhj { background: var(--jc); color: #fff; }
+.md.mhb { background: linear-gradient(135deg,var(--vc) 50%,var(--jc) 50%); color: #fff; }
+.md.mtog { outline: 2px solid var(--bc); outline-offset: -2px; }
+.md.mevt::after { content:''; position:absolute; bottom:2px; left:50%; transform:translateX(-50%); width:3px; height:3px; border-radius:50%; background:var(--bc); }
+.md.mhv.mevt::after,.md.mhj.mevt::after,.md.mhb.mevt::after { background:rgba(255,255,255,.8); }
+
+/* MODAL SHARED */
+.moverlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 200; align-items: center; justify-content: center; }
+.moverlay.on { display: flex; }
+.mdl { background: var(--white); border-radius: 22px; padding: 28px; width: 370px; box-shadow: 0 24px 60px rgba(0,0,0,.2); max-height: 90vh; overflow-y: auto; }
+.mdl-date { font-family: 'Fraunces', serif; font-weight: 900; font-size: 22px; margin-bottom: 16px; }
+.mdl-date span { font-size: 12px; font-weight: 500; color: var(--muted); margin-left: 6px; font-family: 'Space Grotesk', sans-serif; }
+.mlbl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 7px; margin-top: 14px; }
+.wtog { display: flex; gap: 7px; }
+.wbtn { flex: 1; padding: 9px; border: 2px solid var(--border); border-radius: 11px; font-family: 'Fraunces', serif; font-weight: 900; font-size: 15px; cursor: pointer; background: var(--white); transition: all .15s; }
+.wbtn.wv { background: var(--vl); border-color: var(--vc); color: var(--vc); }
+.wbtn.wj { background: var(--jl); border-color: var(--jc); color: var(--jc); }
+.wbtn.wb { background: var(--bl); border-color: var(--bc); color: var(--bc); }
+.ttog { display: flex; gap: 7px; }
+.tbtn { flex: 1; padding: 8px; border: 2px solid var(--border); border-radius: 11px; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 11px; cursor: pointer; background: var(--white); transition: all .15s; color: var(--muted); }
+.tbtn.ton { background: var(--text); border-color: var(--text); color: #fff; }
+.mdl input, .mdl select {
+  width: 100%; padding: 10px 12px; border: 2px solid var(--border);
+  border-radius: 11px; font-family: 'Space Grotesk', sans-serif;
+  font-size: 13px; outline: none; transition: border-color .15s; margin-bottom: 3px;
+  background: var(--white);
+}
+.mdl input:focus, .mdl select:focus { border-color: var(--text); }
+.errhint { font-size: 10px; color: var(--vc); font-weight: 600; min-height: 15px; }
+.macts { display: flex; gap: 9px; margin-top: 16px; }
+.bcncl { flex: 1; padding: 11px; border: 2px solid var(--border); border-radius: 11px; background: none; font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 13px; cursor: pointer; }
+.badd { flex: 2; padding: 11px; border: none; border-radius: 11px; background: var(--text); color: #fff; font-family: 'Fraunces', serif; font-weight: 900; font-size: 14px; cursor: pointer; transition: opacity .15s; }
+.badd:hover { opacity: .82; }
+.badd:disabled { opacity: .4; cursor: not-allowed; }
+
+/* SETTINGS MODAL */
+.cfg-title { font-family: 'Fraunces', serif; font-weight: 900; font-size: 22px; margin-bottom: 4px; }
+.cfg-sub { font-size: 12px; color: var(--muted); font-weight: 500; margin-bottom: 6px; }
+.cfg-section { margin-top: 18px; }
+.cfg-hint { font-size: 11px; color: var(--muted); margin-top: 4px; line-height: 1.4; }
+.cfg-hint a { color: var(--jc); }
+.cfg-status { padding: 10px 14px; border-radius: 10px; font-size: 12px; font-weight: 600; margin-top: 12px; display: none; }
+.cfg-status.ok { background: #f0fdf4; color: #166534; border: 2px solid #bbf7d0; display: block; }
+.cfg-status.err { background: #fef2f2; color: #991b1b; border: 2px solid #fecaca; display: block; }
+.cfg-divider { border: none; border-top: 2px solid var(--border); margin: 18px 0; }
+.cfg-danger { font-size: 11px; color: var(--muted); text-align: center; cursor: pointer; }
+.cfg-danger:hover { color: var(--vc); }
+
+/* SPINNER OVERLAY */
+.spin-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(247,244,239,.75); z-index: 300;
+  align-items: center; justify-content: center; flex-direction: column; gap: 14px;
+}
+.spin-overlay.on { display: flex; }
+.spinner { width: 36px; height: 36px; border: 4px solid var(--border); border-top-color: var(--text); border-radius: 50%; animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin-lbl { font-size: 13px; font-weight: 700; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <span class="v">V</span><span class="amp"> & </span><span class="j">J</span>
+    <span class="yr">2026</span>
+  </div>
+  <div class="hdr-right">
+    <div class="legend">
+      <div class="leg leg-v"><div class="dot dv"></div>V</div>
+      <div class="leg leg-j"><div class="dot dj"></div>J</div>
+      <div class="leg leg-b"><div class="dot db"></div>Together</div>
+    </div>
+
+    <!-- SYNC STATUS -->
+    <div class="sync-bar" id="syncBar" title="GitHub sync status">
+      <div class="sync-dot sd-uncfg" id="syncDot"></div>
+      <span id="syncLbl">Not connected</span>
+      <button class="sync-refresh" id="syncRefreshBtn" onclick="manualRefresh()" title="Refresh now">↻</button>
+    </div>
+
+    <button class="icon-btn" onclick="openSettings()" title="GitHub Settings">⚙</button>
+
+    <div class="vtoggle">
+      <button class="vbtn on" id="btnMonthly" onclick="setView('detail')">Monthly</button>
+      <button class="vbtn" id="btnOverview" onclick="setView('summary')">Overview</button>
+    </div>
+  </div>
+</header>
+
+<!-- SETUP BANNER -->
+<div class="setup-banner hidden" id="setupBanner">
+  ⚠️ Calendar is not synced — changes only save locally. Connect to GitHub so both of you stay in sync.
+  <button class="setup-banner-btn" onclick="openSettings()">Connect GitHub →</button>
+</div>
+
+<nav class="mnav" id="mnav"></nav>
+
+<div class="panel on" id="detailPanel"></div>
+
+<div class="panel" id="summaryPanel">
+  <div class="sum-title">V <span style="color:var(--muted);font-size:26px">&</span> J — <span style="color:var(--muted)">Overview</span></div>
+  <div class="sum-sub">Holiday blocks + shared plans · June – December 2026</div>
+  <div class="sum-leg">
+    <div class="sl"><div class="slb slbv"></div>V on holiday</div>
+    <div class="sl"><div class="slb slbj"></div>J on holiday</div>
+    <div class="sl"><div class="slb slbb"></div>Both away</div>
+    <div class="sl"><div class="sld"></div>Joint plan</div>
+  </div>
+  <div class="sum-grid" id="sumGrid"></div>
+</div>
+
+<!-- ADD EVENT MODAL -->
+<div class="moverlay" id="moverlay">
+  <div class="mdl">
+    <div class="mdl-date" id="mdlDate">15 Jun <span>2026</span></div>
+    <div class="mlbl">Who?</div>
+    <div class="wtog">
+      <button class="wbtn" id="bV" onclick="selWho('v')">V</button>
+      <button class="wbtn" id="bJ" onclick="selWho('j')">J</button>
+      <button class="wbtn" id="bB" onclick="selWho('both')">Both</button>
+    </div>
+    <div class="mlbl">Type?</div>
+    <div class="ttog">
+      <button class="tbtn ton" id="tEv" onclick="selType('event')">📅 Event / Plan</button>
+      <button class="tbtn" id="tHol" onclick="selType('holiday')">✈️ Holiday</button>
+    </div>
+    <div class="mlbl">Label</div>
+    <input type="text" id="evInput" placeholder="What's happening?" maxlength="60"/>
+    <div class="errhint" id="errHint"></div>
+    <div class="macts">
+      <button class="bcncl" onclick="closeMdl()">Cancel</button>
+      <button class="badd" id="addBtn" onclick="addEv()">Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="moverlay" id="cfgOverlay">
+  <div class="mdl" style="width:420px">
+    <div class="cfg-title">⚙ GitHub Sync</div>
+    <div class="cfg-sub">Enter your repo details. Each person enters their own PAT on their own device.</div>
+
+    <div class="cfg-section">
+      <div class="mlbl">GitHub Username / Org</div>
+      <input type="text" id="cfgOwner" placeholder="e.g. vjcalendar" autocomplete="off"/>
+    </div>
+
+    <div class="cfg-section">
+      <div class="mlbl">Repository Name</div>
+      <input type="text" id="cfgRepo" placeholder="e.g. our-calendar" autocomplete="off"/>
+    </div>
+
+    <div class="cfg-section">
+      <div class="mlbl">Branch</div>
+      <input type="text" id="cfgBranch" placeholder="main" autocomplete="off"/>
+    </div>
+
+    <div class="cfg-section">
+      <div class="mlbl">Personal Access Token (PAT)</div>
+      <input type="password" id="cfgToken" placeholder="ghp_••••••••••••••" autocomplete="off"/>
+      <div class="cfg-hint">
+        Needs <strong>Contents: Read & Write</strong> permission.
+        <a href="https://github.com/settings/tokens?type=beta" target="_blank">Create a fine-grained PAT →</a>
+        <br>Your token stays on this device only.
+      </div>
+    </div>
+
+    <div class="cfg-status" id="cfgStatus"></div>
+
+    <div class="macts">
+      <button class="bcncl" onclick="closeCfg()">Cancel</button>
+      <button class="badd" id="cfgTestBtn" onclick="testAndSaveCfg()">Test & Save</button>
+    </div>
+
+    <hr class="cfg-divider">
+    <div class="cfg-danger" onclick="clearCfg()">Disconnect & clear saved token</div>
+  </div>
+</div>
+
+<!-- LOADING SPINNER -->
+<div class="spin-overlay" id="spinOverlay">
+  <div class="spinner"></div>
+  <div class="spin-lbl" id="spinLbl">Syncing…</div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// CONSTANTS & STATE
+// ─────────────────────────────────────────────
+const MONTHS=[
+  {name:'June',     short:'Jun',num:6, color:'#F5A82A',dark:true },
+  {name:'July',     short:'Jul',num:7, color:'#F55A23',dark:false},
+  {name:'August',   short:'Aug',num:8, color:'#5B6EF5',dark:false},
+  {name:'September',short:'Sep',num:9, color:'#85C441',dark:true },
+  {name:'October',  short:'Oct',num:10,color:'#C8C83A',dark:true },
+  {name:'November', short:'Nov',num:11,color:'#E85494',dark:false},
+  {name:'December', short:'Dec',num:12,color:'#E8474A',dark:false},
+];
+const WD=['M','T','W','T','F','S','S'];
+const Y=2026;
+const GH='https://api.github.com';
+const POLL_MS = 30000; // auto-refresh every 30s
+
+let evts={};
+let evtsSha=null;
+let curView='detail', curM=0, mdlDate=null, selW=null, selT='event';
+let pollTimer=null;
+let lastSynced=null;
+let cfg=null; // {owner,repo,token,branch}
+
+// ─────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────
+const key=(m,d)=>`${Y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+const dim=(m)=>new Date(Y,m,0).getDate();
+const fdow=(m)=>{let d=new Date(Y,m-1,1).getDay();return d===0?6:d-1;};
+const isToday=(m,d)=>{const t=new Date();return t.getFullYear()===Y&&t.getMonth()+1===m&&t.getDate()===d;};
+
+function loadCfg(){
+  try { cfg=JSON.parse(localStorage.getItem('vj26_cfg')||'null'); } catch(e){ cfg=null; }
+}
+function saveCfg(c){ cfg=c; localStorage.setItem('vj26_cfg',JSON.stringify(c)); }
+function clearCfg(){
+  if(!confirm('Disconnect GitHub and clear your token?')) return;
+  cfg=null; localStorage.removeItem('vj26_cfg');
+  evts={}; evtsSha=null;
+  closeCfg(); setSyncStatus('uncfg');
+  document.getElementById('setupBanner').classList.remove('hidden');
+  buildDetail(); buildNav();
+}
+
+function ghHeaders(){
+  return {
+    'Authorization': `Bearer ${cfg.token}`,
+    'Accept':'application/vnd.github+json',
+    'X-GitHub-Api-Version':'2022-11-28',
+    'Content-Type':'application/json'
+  };
+}
+
+function b64encode(str){
+  // encode UTF-8 string to base64 safely
+  return btoa(unescape(encodeURIComponent(str)));
+}
+function b64decode(str){
+  return decodeURIComponent(escape(atob(str.replace(/\n/g,''))));
+}
+
+// ─────────────────────────────────────────────
+// SYNC STATUS
+// ─────────────────────────────────────────────
+function setSyncStatus(state, msg){
+  const dot=document.getElementById('syncDot');
+  const lbl=document.getElementById('syncLbl');
+  if(!dot) return;
+
+  dot.className='sync-dot sd-'+state;
+
+  if(state==='idle'){
+    if(lastSynced){
+      const ago=Math.round((Date.now()-lastSynced)/1000);
+      lbl.textContent=ago<10?'Just synced':ago<60?`${ago}s ago`:`${Math.round(ago/60)}m ago`;
+    } else {
+      lbl.textContent='Synced';
+    }
+  } else if(state==='loading'){ lbl.textContent='Loading…';
+  } else if(state==='saving') { lbl.textContent='Saving…';
+  } else if(state==='error')  { lbl.textContent=msg||'Sync error';
+  } else if(state==='uncfg')  { lbl.textContent='Not connected';
+  }
+}
+
+// Auto-refresh "X ago" label
+setInterval(()=>{ if(lastSynced) setSyncStatus('idle'); }, 15000);
+
+// ─────────────────────────────────────────────
+// GITHUB API
+// ─────────────────────────────────────────────
+async function fetchEvents(){
+  if(!cfg) return false;
+  const branch=cfg.branch||'main';
+  const url=`${GH}/repos/${cfg.owner}/${cfg.repo}/contents/events.json?ref=${encodeURIComponent(branch)}&t=${Date.now()}`;
+  const res=await fetch(url,{headers:ghHeaders()});
+  if(res.status===404){ evts={}; evtsSha=null; return true; }
+  if(!res.ok){ const e=await res.json(); throw new Error(e.message||`HTTP ${res.status}`); }
+  const data=await res.json();
+  evtsSha=data.sha;
+  evts=JSON.parse(b64decode(data.content));
+  return true;
+}
+
+async function commitEvents(){
+  if(!cfg) return;
+  const branch=cfg.branch||'main';
+  // Always re-fetch SHA before committing to avoid conflicts
+  try {
+    const check=await fetch(`${GH}/repos/${cfg.owner}/${cfg.repo}/contents/events.json?ref=${encodeURIComponent(branch)}&t=${Date.now()}`,{headers:ghHeaders()});
+    if(check.ok){ const d=await check.json(); evtsSha=d.sha; }
+  } catch(e){}
+
+  const body={
+    message:`Update events · ${new Date().toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}`,
+    content: b64encode(JSON.stringify(evts,null,2)),
+    branch
+  };
+  if(evtsSha) body.sha=evtsSha;
+
+  const res=await fetch(`${GH}/repos/${cfg.owner}/${cfg.repo}/contents/events.json`,{
+    method:'PUT', headers:ghHeaders(), body:JSON.stringify(body)
+  });
+  if(!res.ok){ const e=await res.json(); throw new Error(e.message||`HTTP ${res.status}`); }
+  const data=await res.json();
+  evtsSha=data.content.sha;
+}
+
+async function loadFromGitHub(silent=false){
+  if(!cfg){ setSyncStatus('uncfg'); return; }
+  setSyncStatus('loading');
+  if(!silent) showSpinner('Loading calendar…');
+  try {
+    await fetchEvents();
+    lastSynced=Date.now();
+    setSyncStatus('idle');
+    buildDetail();
+    buildNav();
+    if(curView==='summary') renderSummary();
+  } catch(e){
+    setSyncStatus('error', 'Load failed');
+    console.error('Load error:',e);
+  } finally {
+    if(!silent) hideSpinner();
+  }
+}
+
+async function saveToGitHub(){
+  if(!cfg){ setSyncStatus('uncfg'); return; }
+  setSyncStatus('saving');
+  try {
+    await commitEvents();
+    lastSynced=Date.now();
+    setSyncStatus('idle');
+  } catch(e){
+    setSyncStatus('error','Save failed – refresh & retry');
+    console.error('Save error:',e);
+    alert('⚠️ Save to GitHub failed: '+e.message+'\n\nRefresh the page and try again.');
+  }
+}
+
+async function manualRefresh(){
+  const btn=document.getElementById('syncRefreshBtn');
+  btn.style.transform='rotate(360deg)';
+  setTimeout(()=>btn.style.transform='',400);
+  await loadFromGitHub(false);
+}
+
+function startPolling(){
+  clearInterval(pollTimer);
+  if(cfg){ pollTimer=setInterval(()=>loadFromGitHub(true), POLL_MS); }
+}
+
+// ─────────────────────────────────────────────
+// SPINNER
+// ─────────────────────────────────────────────
+function showSpinner(lbl='Syncing…'){
+  document.getElementById('spinLbl').textContent=lbl;
+  document.getElementById('spinOverlay').classList.add('on');
+}
+function hideSpinner(){
+  document.getElementById('spinOverlay').classList.remove('on');
+}
+
+// ─────────────────────────────────────────────
+// SETTINGS MODAL
+// ─────────────────────────────────────────────
+function openSettings(){
+  if(cfg){
+    document.getElementById('cfgOwner').value=cfg.owner||'';
+    document.getElementById('cfgRepo').value=cfg.repo||'';
+    document.getElementById('cfgBranch').value=cfg.branch||'main';
+    document.getElementById('cfgToken').value=cfg.token||'';
+  } else {
+    document.getElementById('cfgOwner').value='';
+    document.getElementById('cfgRepo').value='';
+    document.getElementById('cfgBranch').value='main';
+    document.getElementById('cfgToken').value='';
+  }
+  document.getElementById('cfgStatus').className='cfg-status';
+  document.getElementById('cfgStatus').textContent='';
+  document.getElementById('cfgOverlay').classList.add('on');
+}
+
+function closeCfg(){ document.getElementById('cfgOverlay').classList.remove('on'); }
+
+async function testAndSaveCfg(){
+  const owner=document.getElementById('cfgOwner').value.trim();
+  const repo=document.getElementById('cfgRepo').value.trim();
+  const branch=document.getElementById('cfgBranch').value.trim()||'main';
+  const token=document.getElementById('cfgToken').value.trim();
+  const statusEl=document.getElementById('cfgStatus');
+  const btn=document.getElementById('cfgTestBtn');
+
+  if(!owner||!repo||!token){
+    statusEl.className='cfg-status err';
+    statusEl.textContent='Please fill in all fields.';
+    return;
+  }
+
+  btn.disabled=true;
+  btn.textContent='Testing…';
+  statusEl.className='cfg-status';
+  statusEl.textContent='';
+
+  const testCfg={owner,repo,branch,token};
+  const testHeaders={
+    'Authorization':`Bearer ${token}`,
+    'Accept':'application/vnd.github+json',
+    'X-GitHub-Api-Version':'2022-11-28'
+  };
+
+  try {
+    // Test: check repo exists & token works
+    const repoRes=await fetch(`${GH}/repos/${owner}/${repo}`,{headers:testHeaders});
+    if(repoRes.status===404){ throw new Error('Repository not found. Check the owner & repo name.'); }
+    if(repoRes.status===401){ throw new Error('Invalid token. Make sure the PAT is correct.'); }
+    if(!repoRes.ok){ throw new Error(`GitHub error: ${repoRes.status}`); }
+
+    // Check if events.json exists; if not, create it
+    const fileRes=await fetch(`${GH}/repos/${owner}/${repo}/contents/events.json?ref=${encodeURIComponent(branch)}&t=${Date.now()}`,{headers:testHeaders});
+    if(fileRes.status===404){
+      // Create events.json
+      const createRes=await fetch(`${GH}/repos/${owner}/${repo}/contents/events.json`,{
+        method:'PUT',
+        headers:{...testHeaders,'Content-Type':'application/json'},
+        body:JSON.stringify({
+          message:'Initialize calendar events',
+          content: btoa('{}'),
+          branch
+        })
+      });
+      if(!createRes.ok){ throw new Error('Could not create events.json in the repo. Check your PAT has write permission.'); }
+    }
+
+    // All good — save config
+    saveCfg(testCfg);
+    statusEl.className='cfg-status ok';
+    statusEl.textContent='✓ Connected successfully! Loading your calendar…';
+    document.getElementById('setupBanner').classList.add('hidden');
+
+    setTimeout(async()=>{
+      closeCfg();
+      await loadFromGitHub(false);
+      startPolling();
+    }, 1200);
+
+  } catch(e){
+    statusEl.className='cfg-status err';
+    statusEl.textContent='✗ '+e.message;
+  } finally {
+    btn.disabled=false;
+    btn.textContent='Test & Save';
+  }
+}
+
+// ─────────────────────────────────────────────
+// SAVE WRAPPER
+// ─────────────────────────────────────────────
+async function save(){
+  // Optimistically re-render, then push to GitHub
+  await saveToGitHub();
+}
+
+// ─────────────────────────────────────────────
+// NAV
+// ─────────────────────────────────────────────
+function buildNav(){
+  const nav=document.getElementById('mnav');
+  nav.innerHTML='';
+  if(curView==='summary'){ nav.style.display='none'; return; }
+  nav.style.display='';
+  MONTHS.forEach((m,i)=>{
+    const b=document.createElement('button');
+    b.className='mtab'+(i===curM?' on':'');
+    b.textContent=m.short.toUpperCase();
+    b.style.background=i===curM?m.color:'#e8e4de';
+    b.style.color=i===curM?(m.dark?'#1a1a1a':'#fff'):'#777';
+    b.onclick=()=>goMonth(i);
+    nav.appendChild(b);
+  });
+}
+
+function goMonth(i){
+  if(curView!=='detail') setView('detail');
+  curM=i;
+  buildNav();
+  document.querySelectorAll('.msec').forEach((s,j)=>s.classList.toggle('on',j===i));
+}
+
+// ─────────────────────────────────────────────
+// VIEWS
+// ─────────────────────────────────────────────
+function setView(v){
+  curView=v;
+  document.getElementById('detailPanel').classList.toggle('on',v==='detail');
+  document.getElementById('summaryPanel').classList.toggle('on',v==='summary');
+  document.getElementById('btnMonthly').classList.toggle('on',v==='detail');
+  document.getElementById('btnOverview').classList.toggle('on',v==='summary');
+  buildNav();
+  if(v==='summary') renderSummary();
+}
+
+// ─────────────────────────────────────────────
+// DETAIL VIEW
+// ─────────────────────────────────────────────
+function buildDetail(){
+  const wrap=document.getElementById('detailPanel');
+  wrap.innerHTML='';
+  MONTHS.forEach((m,i)=>{
+    const sec=document.createElement('div');
+    sec.className='msec'+(i===curM?' on':'');
+    sec.id='ms'+i;
+    wrap.appendChild(sec);
+    renderMonth(m,i);
+  });
+}
+
+function renderMonth(m,i){
+  const sec=document.getElementById('ms'+i);
+  if(!sec) return;
+  const tog=countTog(m.num);
+  sec.innerHTML=`
+    <div class="mhdr">
+      <div class="mname" style="color:${m.color}">${m.name}</div>
+      <div class="myr">2026</div>
+    </div>
+    ${tog>0?`<div class="tog-strip"><div><div class="tog-lbl">Together this month</div><div class="tog-sub">days with joint plans</div></div><div class="tog-num">${tog}</div></div>`:''}
+    <div class="cgrid">
+      <div class="cwk">${WD.map(d=>`<div class="cwkd">${d}</div>`).join('')}</div>
+      <div class="cdays" id="cd${i}"></div>
+    </div>`;
+  renderDays(m,i);
+}
+
+function renderDays(m,i){
+  const wrap=document.getElementById('cd'+i);
+  if(!wrap) return;
+  wrap.innerHTML='';
+  const tot=dim(m.num), fd=fdow(m.num);
+  for(let x=0;x<fd;x++){const e=document.createElement('div');e.className='cday emp';wrap.appendChild(e);}
+  for(let d=1;d<=tot;d++){
+    const k=key(m.num,d), de=evts[k]||[];
+    const hv=de.some(e=>e.type==='holiday'&&(e.who==='v'||e.who==='both'));
+    const hj=de.some(e=>e.type==='holiday'&&(e.who==='j'||e.who==='both'));
+    const nonH=de.filter(e=>e.type!=='holiday');
+
+    const cell=document.createElement('div');
+    let cls='cday';
+    if(isToday(m.num,d)) cls+=' today';
+    if(hv) cls+=' hv'; if(hj) cls+=' hj';
+    cell.className=cls;
+    cell.onclick=()=>openMdl(m.num,d);
+
+    if(hv||hj){
+      const s=document.createElement('div'); s.className='hstripe';
+      if(hv){const x=document.createElement('div');x.className='hsv';s.appendChild(x);}
+      if(hj){const x=document.createElement('div');x.className='hsj';s.appendChild(x);}
+      cell.appendChild(s);
+    }
+
+    const dn=document.createElement('div'); dn.className='dnum'; dn.textContent=d; cell.appendChild(dn);
+    const dw=document.createElement('div'); dw.className='devts';
+
+    de.filter(e=>e.type==='holiday').forEach((ev)=>{
+      const p=mkPill(ev.who==='j'?'phj':'phv',`✈ ${ev.text}`,()=>removeEv(k,de.indexOf(ev),m,i));
+      dw.appendChild(p);
+    });
+    const MAX=2;
+    nonH.slice(0,MAX).forEach(ev=>{
+      const cls2=ev.who==='v'?'pv':ev.who==='j'?'pj':'pb';
+      const lbl=ev.who==='v'?'V':ev.who==='j'?'J':'♡';
+      const p=mkPill(cls2,`${lbl} ${ev.text}`,()=>removeEv(k,de.indexOf(ev),m,i));
+      dw.appendChild(p);
+    });
+    if(nonH.length>MAX){const more=document.createElement('div');more.className='more';more.textContent=`+${nonH.length-MAX} more`;dw.appendChild(more);}
+
+    cell.appendChild(dw); wrap.appendChild(cell);
+  }
+}
+
+function mkPill(cls,txt,onDel){
+  const p=document.createElement('div'); p.className=`pill ${cls}`;
+  p.innerHTML=`<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${txt}</span><span class="del">×</span>`;
+  p.querySelector('.del').onclick=e=>{e.stopPropagation();onDel();};
+  return p;
+}
+
+function countTog(mn){
+  let c=0;
+  for(let d=1;d<=dim(mn);d++) if((evts[key(mn,d)]||[]).some(e=>e.who==='both')) c++;
+  return c;
+}
+
+async function removeEv(k,idx,m,mi){
+  evts[k].splice(idx,1);
+  if(!evts[k].length) delete evts[k];
+  renderMonth(m,mi);
+  await save();
+}
+
+function reMonth(m,i){
+  const old=document.getElementById('ms'+i);
+  const wasOn=old&&old.classList.contains('on');
+  if(old) old.remove();
+  const sec=document.createElement('div');
+  sec.className='msec'+(wasOn?' on':'');
+  sec.id='ms'+i;
+  document.getElementById('detailPanel').appendChild(sec);
+  renderMonth(m,i);
+}
+
+// ─────────────────────────────────────────────
+// SUMMARY VIEW
+// ─────────────────────────────────────────────
+function renderSummary(){
+  const grid=document.getElementById('sumGrid');
+  grid.innerHTML='';
+  MONTHS.forEach((m,idx)=>{
+    const hvD=countHolDays(m.num,'v');
+    const hjD=countHolDays(m.num,'j');
+    const togD=countTog(m.num);
+    const row=document.createElement('div');
+    row.className='smrow';
+    row.onclick=()=>goMonth(idx);
+    let statsHtml='';
+    if(hvD>0) statsHtml+=`<div class="smstat"><div class="smstat-n" style="color:var(--vc)">${hvD}</div><div class="smstat-l">V off</div></div>`;
+    if(hjD>0) statsHtml+=`<div class="smstat"><div class="smstat-n" style="color:var(--jc)">${hjD}</div><div class="smstat-l">J off</div></div>`;
+    if(togD>0) statsHtml+=`<div class="smstat"><div class="smstat-n" style="color:var(--bc)">${togD}</div><div class="smstat-l">Together</div></div>`;
+    row.innerHTML=`
+      <div class="smtop">
+        <div class="smname" style="color:${m.color}">${m.name}</div>
+        <div class="smstats">${statsHtml}</div>
+      </div>
+      <div class="mgwrap">
+        <div class="mgwk">${WD.map(d=>`<div class="mgwkd">${d}</div>`).join('')}</div>
+        <div class="mgdays" id="mg${idx}"></div>
+      </div>`;
+    grid.appendChild(row);
+    renderMiniDays(m,idx,row.querySelector(`#mg${idx}`));
+  });
+}
+
+function countHolDays(mn,who){
+  let c=0;
+  for(let d=1;d<=dim(mn);d++) if((evts[key(mn,d)]||[]).some(e=>e.type==='holiday'&&(e.who===who||e.who==='both'))) c++;
+  return c;
+}
+
+function renderMiniDays(m,idx,container){
+  container.innerHTML='';
+  const tot=dim(m.num), fd=fdow(m.num);
+  for(let x=0;x<fd;x++){const e=document.createElement('div');e.className='md me';container.appendChild(e);}
+  for(let d=1;d<=tot;d++){
+    const k=key(m.num,d), de=evts[k]||[];
+    const hv=de.some(e=>e.type==='holiday'&&(e.who==='v'||e.who==='both'));
+    const hj=de.some(e=>e.type==='holiday'&&(e.who==='j'||e.who==='both'));
+    const hasTog=de.some(e=>e.who==='both');
+    const hasEvt=de.some(e=>e.type!=='holiday');
+    const cell=document.createElement('div');
+    let cls='md';
+    if(hv&&hj) cls+=' mhb';
+    else if(hv) cls+=' mhv';
+    else if(hj) cls+=' mhj';
+    if(hasTog&&!hv&&!hj) cls+=' mtog';
+    if(hasEvt) cls+=' mevt';
+    if(isToday(m.num,d)) cls+=' mtoday';
+    cell.className=cls; cell.textContent=d;
+    container.appendChild(cell);
+  }
+}
+
+// ─────────────────────────────────────────────
+// ADD EVENT MODAL
+// ─────────────────────────────────────────────
+function openMdl(mn,d){
+  mdlDate={mn,d}; selW=null; selT='event';
+  document.getElementById('evInput').value='';
+  document.getElementById('errHint').textContent='';
+  ['bV','bJ','bB'].forEach(id=>document.getElementById(id).className='wbtn');
+  document.getElementById('tEv').className='tbtn ton';
+  document.getElementById('tHol').className='tbtn';
+  document.getElementById('evInput').placeholder="What's happening?";
+  const ms=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('mdlDate').innerHTML=`${d} ${ms[mn-1]} <span>2026</span>`;
+  document.getElementById('addBtn').disabled=false;
+  document.getElementById('addBtn').textContent='Add';
+  document.getElementById('moverlay').classList.add('on');
+  setTimeout(()=>document.getElementById('evInput').focus(),50);
+}
+
+function closeMdl(){ document.getElementById('moverlay').classList.remove('on'); mdlDate=null; }
+
+function selWho(w){
+  selW=w;
+  document.getElementById('bV').className='wbtn'+(w==='v'?' wv':'');
+  document.getElementById('bJ').className='wbtn'+(w==='j'?' wj':'');
+  document.getElementById('bB').className='wbtn'+(w==='both'?' wb':'');
+  document.getElementById('errHint').textContent='';
+}
+
+function selType(t){
+  selT=t;
+  document.getElementById('tEv').className='tbtn'+(t==='event'?' ton':'');
+  document.getElementById('tHol').className='tbtn'+(t==='holiday'?' ton':'');
+  document.getElementById('evInput').placeholder=t==='holiday'?'e.g. Italy trip':"What's happening?";
+}
+
+async function addEv(){
+  const txt=document.getElementById('evInput').value.trim();
+  const hint=document.getElementById('errHint');
+  const btn=document.getElementById('addBtn');
+  if(!selW){hint.textContent='Pick who this is for';return;}
+  if(!txt){hint.textContent='Add a label';return;}
+  const k=key(mdlDate.mn,mdlDate.d);
+  if(!evts[k]) evts[k]=[];
+  evts[k].push({who:selW,text:txt,type:selT});
+  // Optimistic render
+  const mi=MONTHS.findIndex(m=>m.num===mdlDate.mn);
+  reMonth(MONTHS[mi],mi);
+  closeMdl();
+  // Save to GitHub
+  btn.disabled=true;
+  await save();
+}
+
+// ─────────────────────────────────────────────
+// KEYBOARD
+// ─────────────────────────────────────────────
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    if(document.getElementById('cfgOverlay').classList.contains('on')){ closeCfg(); return; }
+    closeMdl();
+  }
+  if(e.key==='Enter'&&document.getElementById('moverlay').classList.contains('on')) addEv();
+});
+document.getElementById('moverlay').addEventListener('click',e=>{
+  if(e.target===document.getElementById('moverlay')) closeMdl();
+});
+document.getElementById('cfgOverlay').addEventListener('click',e=>{
+  if(e.target===document.getElementById('cfgOverlay')) closeCfg();
+});
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+(async function init(){
+  loadCfg();
+  buildDetail();
+  buildNav();
+
+  if(!cfg){
+    setSyncStatus('uncfg');
+    document.getElementById('setupBanner').classList.remove('hidden');
+    return;
+  }
+
+  document.getElementById('setupBanner').classList.add('hidden');
+  await loadFromGitHub(false);
+  startPolling();
+})();
+</script>
+</body>
+</html>
