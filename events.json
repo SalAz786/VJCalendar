@@ -313,6 +313,11 @@
       "who": "j",
       "text": "Portugal",
       "type": "holiday"
+    },
+    {
+      "who": "v",
+      "text": "China",
+      "type": "event"
     }
   ],
   "2026-07-25": [
